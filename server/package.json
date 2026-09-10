@@ -1,0 +1,17 @@
+{
+  "name": "carrier-ai-server",
+  "version": "1.0.0",
+  "description": "Backend API server for Carrier AI learning platform",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node tests/remediation.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

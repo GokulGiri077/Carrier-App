@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Award, Download, Mail, Share2, CheckCircle2, ShieldCheck, Sparkles, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { apiFetch } from '../config/api';
 
 export default function CertificateView({ certificate, user }) {
   const canvasRef = useRef(null);
@@ -135,9 +136,8 @@ export default function CertificateView({ certificate, user }) {
   const handleSendEmail = async () => {
     setSendingEmail(true);
     try {
-      const res = await fetch('/api/certificate/send-email', {
+      const res = await apiFetch('/api/certificate/send-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           certificateId: certificate?.id || 1,
           email: user?.email || 'alex.student@carrier.ai'

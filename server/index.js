@@ -13,9 +13,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'carrier_ai_super_secret_jwt_key_2026';
 
-// Enhanced CORS Configuration allowing frontend Vite origin
+// Enhanced CORS Configuration allowing frontend Vite local origins and Render deployed frontend
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.onrender.com') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Permissive so deployed static site is never blocked
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

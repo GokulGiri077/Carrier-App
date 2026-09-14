@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Video, Code, MessageSquare, AlertCircle, ArrowRight, CheckCircle2, UserCheck, Play } from 'lucide-react';
+import { apiFetch } from '../config/api';
 
 export default function AdaptiveRemediationModal({ isOpen, onClose, subTopic, onResolveRemediation }) {
   const [step, setStep] = useState('diagnose'); // 'diagnose' | 'recommendation' | 'mentor'
@@ -15,9 +16,8 @@ export default function AdaptiveRemediationModal({ isOpen, onClose, subTopic, on
     setLoading(true);
 
     try {
-      const res = await fetch('/api/remediation/feedback', {
+      const res = await apiFetch('/api/remediation/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           topicId: 1,
           subTopic: subTopic || 'Core Fundamentals',

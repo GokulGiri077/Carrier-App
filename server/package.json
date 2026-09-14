@@ -6,11 +6,12 @@
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
-    "test": "node tests/remediation.test.js"
+    "test": "node tests/remediation.test.js && node tests/youtube.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2"
   }

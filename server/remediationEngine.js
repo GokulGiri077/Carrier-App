@@ -41,6 +41,8 @@ function processQuizSubmission({ quiz, userAnswers, topic, remediationLogs = [] 
  * Tracks attempt count in remediation_log.
  * Escalates to mentor if attempt_count >= 3.
  */
+const { getCuratedFallback } = require('./youtubeService');
+
 function handleRemediationFeedback({ userId, topicId, subTopic, issueType, existingLog = null }) {
   const currentAttempts = existingLog ? existingLog.attempt_count + 1 : 1;
   const escalated = currentAttempts >= MAX_REMEDIATION_ATTEMPTS;
@@ -48,11 +50,14 @@ function handleRemediationFeedback({ userId, topicId, subTopic, issueType, exist
   let suggestedResource = null;
   if (!escalated) {
     if (issueType === 'video') {
+      const fallback = getCuratedFallback(subTopic, subTopic);
       suggestedResource = {
         type: 'video',
-        title: `Alternative Explanation: ${subTopic} Deep Dive`,
-        platform: 'YouTube (Interactive Tech Guide)',
-        url: 'https://www.youtube.com/watch?v=2LhktLMf3fU',
+        title: `Alternative Explanation: ${subTopic} (${fallback.theory.title})`,
+        platform: 'YouTube',
+        videoId: fallback.theory.id,
+        url: `https://www.youtube.com/embed/${fallback.theory.id}`,
+        watchUrl: `https://www.youtube.com/watch?v=${fallback.theory.id}`,
         style_tag: 'theory'
       };
     } else {

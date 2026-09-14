@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -8,6 +9,7 @@ const buildRoadmapPrompt = require('./prompts/roadmapPrompt');
 const buildQuizPrompt = require('./prompts/quizPrompt');
 const buildRemediationPrompt = require('./prompts/remediationPrompt');
 const buildEvaluationPrompt = require('./prompts/evaluationPrompt');
+const youtubeService = require('./youtubeService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -139,7 +141,26 @@ app.post('/api/auth/profile', authenticateToken, (req, res) => {
 });
 
 // ----------------------------------------------------
-// 2. AI ROADMAP GENERATION & TIMETABLE
+// 2. REAL YOUTUBE VIDEO SEARCH & RECOMMENDATIONS
+// ----------------------------------------------------
+app.get('/api/videos', async (req, res) => {
+  try {
+    const { topic = '', subTopic = '' } = req.query;
+    const subTopics = subTopic ? [subTopic] : [];
+    const videos = await youtubeService.getVideosForTopic(topic, subTopics);
+    res.json({
+      success: true,
+      topic,
+      videos
+    });
+  } catch (err) {
+    console.error('Error fetching videos:', err);
+    res.status(500).json({ error: 'Failed to fetch videos' });
+  }
+});
+
+// ----------------------------------------------------
+// 3. AI ROADMAP GENERATION & TIMETABLE
 // ----------------------------------------------------
 app.post('/api/roadmap/generate', authenticateToken, (req, res) => {
   const { career_goal, duration_weeks = 6, experience_level = 'Beginner' } = req.body;
@@ -161,6 +182,7 @@ app.post('/api/roadmap/generate', authenticateToken, (req, res) => {
       
       const topicList = trackTopics[career_goal] || trackTopics['Full-Stack Developer'];
       const topicName = topicList[idx % topicList.length] + ` (Part ${Math.floor(idx / topicList.length) + 1})`;
+      const curated = youtubeService.getCuratedFallback(topicName, `${topicName} Fundamentals`);
 
       return {
         week: weekNum,
@@ -174,17 +196,23 @@ app.post('/api/roadmap/generate', authenticateToken, (req, res) => {
             videos: [
               {
                 id: `v_${weekNum}_1`,
-                title: `${topicName} - Complete Theory & Fundamentals`,
+                title: `${topicName} - ${curated.theory.title}`,
                 platform: 'YouTube',
-                url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                videoId: curated.theory.id,
+                url: `https://www.youtube.com/embed/${curated.theory.id}`,
+                watchUrl: `https://www.youtube.com/watch?v=${curated.theory.id}`,
+                channel: curated.theory.channel,
                 style_tag: 'theory',
                 order: 1
               },
               {
                 id: `v_${weekNum}_2`,
-                title: `Building Real Projects with ${topicName}`,
+                title: `${topicName} - ${curated.practical.title}`,
                 platform: 'YouTube',
-                url: 'https://www.youtube.com/embed/3JZ_D3ELwOQ',
+                videoId: curated.practical.id,
+                url: `https://www.youtube.com/embed/${curated.practical.id}`,
+                watchUrl: `https://www.youtube.com/watch?v=${curated.practical.id}`,
+                channel: curated.practical.channel,
                 style_tag: 'example-based',
                 order: 2
               }
@@ -227,7 +255,11 @@ app.post('/api/roadmap/generate', authenticateToken, (req, res) => {
           id: db.nextId('videos'),
           topic_id: topicId,
           platform: v.platform,
+          videoId: v.videoId,
+          title: v.title,
           url: v.url,
+          watchUrl: v.watchUrl,
+          channel: v.channel,
           style_tag: v.style_tag,
           order: vIdx + 1
         });

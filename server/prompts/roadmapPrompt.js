@@ -26,16 +26,16 @@ Return ONLY a valid JSON object matching the following structure:
             {
               "title": "Theory & Fundamentals Video",
               "platform": "YouTube",
-              "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "searchQuery": "Topic Fundamentals and Core Architecture Tutorial",
               "style_tag": "theory",
-              "duration": "15 mins"
+              "duration": "20 mins"
             },
             {
               "title": "Hands-on Practical Guide",
               "platform": "YouTube",
-              "url": "https://www.youtube.com/watch?v=3JZ_D3ELwOQ",
+              "searchQuery": "Building Real Projects with Topic Live Coding",
               "style_tag": "example-based",
-              "duration": "22 mins"
+              "duration": "30 mins"
             }
           ]
         }
